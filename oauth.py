@@ -8,7 +8,7 @@ from oauth2client.tools import run
 import getpass
 
 
-def get_service(secrets, scope, servce_string, 
+def get_service(secrets, scope, service_name, 
                 service_version, keyring_storename):
     """
     return a service for google
@@ -24,7 +24,7 @@ def get_service(secrets, scope, servce_string,
     # finally create a service object:
     http = httplib2.Http()
     http = credentials.authorize(http)
-    service = build(service_string, service_version, http=http)
+    service = build(service_name, service_version, http=http)
     return service
 
 
