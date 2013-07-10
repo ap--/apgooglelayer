@@ -49,9 +49,9 @@ class GoogleDrive(object):
         return utils.unwrap_pages(f, kwargs)
 
 
-    def folder_structure(self):
+    def folder_structure(self,fields='items(id,mimeType,labels/trashed)'):
         MAP = {}
-        for f in self.all_files(fields='items(id,mimeType,title)'):
+        for f in self.all_files(fields=fields):
             _id = f.pop('id')
             MAP[_id] = f
         
@@ -69,8 +69,8 @@ class GoogleDrive(object):
         return Tree
 
     
-    def folder_structure_as_gtktreestore(self):
-        tree = self.folder_structure()
+    def folder_structure_as_gtktreestore(self, fields='items(id,mimeType)'):
+        tree = self.folder_structure(fields=fields)
         return tree.as_gtktreestore()
 
 
