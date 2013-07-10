@@ -3,6 +3,7 @@
 import utils
 
 
+
 class GoogleDriveIdHashableDict(dict):
     
     def __init__(self, file_id, *args):
@@ -26,6 +27,16 @@ class GoogleDrive(object):
 
     def __init__(self, service):
         self.service = service
+        
+        # get user info
+        self.user = {}
+        self._about = about = self.about()
+        self.user['name'] = about['user']['displayName']
+        self.user['image'] = about['user']['picture']['url']
+
+
+    def about(self, **kwargs):
+        return self.service.about().get(**kwargs).execute()
 
 
     def all_files(self, **kwargs):
