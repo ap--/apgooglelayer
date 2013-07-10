@@ -59,6 +59,8 @@ class GoogleDrive(object):
             TRACK = self.files_in_folder(folderId=START,fields='items(id)')
             for f in TRACK:
                 _id = f['id']
+                if bool(MAP[_id]['labels']['trashed']):
+                    continue
                 Hid = GoogleDriveIdHashableDict(_id, MAP[_id])
                 T[Hid] # creates entry through defaultdict
                 if 'folder' in MAP[_id]['mimeType']:
