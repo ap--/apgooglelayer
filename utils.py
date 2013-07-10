@@ -53,7 +53,7 @@ class SimpleTree(collections.defaultdict):
                 PARENT.append(LASTID)
             if level - OLDLEVEL < 0:
                 PARENT.pop()
-            LASTID = treestore.append(PARENT[-1],(value,))
+            LASTID = treestore.append(PARENT[-1],(dict(value),))
             OLDLEVEL = level
 
         return treestore
