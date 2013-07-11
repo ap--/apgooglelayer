@@ -1,15 +1,14 @@
 
-import array
 import dateutil.parser
 import dateutil.tz
 import math
 import requests
-import StringIO
 import time
 
 from PIL import Image
 import cairo
 from gi.repository import Gtk, GdkPixbuf, GLib, Pango, PangoCairo
+from _helpers import pil_from_url, cairo_ImageSurface_from_pil
 
 
 class GoogleDriveWidget(Gtk.VBox):
@@ -136,23 +135,6 @@ class GoogleDriveWidget(Gtk.VBox):
         name = model.get_value(iter, 0)['title']
         cell.set_property('text', name)
 
-
-
-
-def pil_from_url(url):
-    imdata = requests.get(url).content
-    return Image.open(StringIO.StringIO(imdata))
-
-
-
-def cairo_ImageSurface_from_pil(im):
-    arr = array.array('B', im.tostring('raw', 'BGRA'))
-    narr = array.array('B')
-    for r,g,b,a in zip(*[arr[i::4] for i in range(4)]):
-        A = a/255.
-        narr.extend((int(r*A), int(g*A), int(b*A), a))
-    return cairo.ImageSurface.create_for_data(narr,
-                cairo.FORMAT_ARGB32, im.size[0], im.size[1])
 
 
 class CairoLoadingWidget(Gtk.DrawingArea):
