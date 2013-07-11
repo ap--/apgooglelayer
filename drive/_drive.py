@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
-import utils
-
+from _utils import unwrap_pages
+from _utils import SimpleTree
 
 
 class GoogleDriveIdHashableDict(dict):
@@ -41,12 +41,12 @@ class GoogleDrive(object):
 
     def all_files(self, **kwargs):
         f = lambda x: self.service.files().list(**x).execute()
-        return utils.unwrap_pages(f, kwargs)
+        return unwrap_pages(f, kwargs)
 
 
     def files_in_folder(self, **kwargs):
         f = lambda x : self.service.children().list(**x).execute()
-        return utils.unwrap_pages(f, kwargs)
+        return unwrap_pages(f, kwargs)
 
 
     def folder_structure(self,fields='items(id,mimeType,labels/trashed)'):
@@ -66,7 +66,7 @@ class GoogleDrive(object):
                 if 'folder' in MAP[_id]['mimeType']:
                     recurse(START=_id, T=T[Hid])
         
-        Tree = utils.SimpleTree()
+        Tree = SimpleTree()
         recurse('root', Tree)
         return Tree
 
