@@ -85,7 +85,7 @@ class GoogleDriveWidget(Gtk.VBox):
                'http://ssl.gstatic.com/ui/v1/star/star-lit-hover4.png'][isStarred]
         cell.set_property('pixbuf',self._url_to_pixbuf(url))
 
-    def _url_to_pixbuf(self, url):
+    def _url_to_pixbuf(self, url, scale=(16,16)):
         try:
             pb = self._cache[url]
         except KeyError:
@@ -94,7 +94,8 @@ class GoogleDriveWidget(Gtk.VBox):
             pl.write(img)
             pl.close()
             pb = pl.get_pixbuf()
-            pb = pb.scale_simple(16,16,GdkPixbuf.InterpType.BILINEAR)
+            if scale:
+                pb = pb.scale_simple(scale[0],scale[1],GdkPixbuf.InterpType.BILINEAR)
             self._cache[url] = pb
         return pb
 
