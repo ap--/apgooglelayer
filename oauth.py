@@ -18,7 +18,7 @@ def get_service(secrets, scope, service_name,
     store = Storage(keyring_storename, getpass.getuser())
     # Check if we already have credentials
     credentials = store.get()
-    if not credentials:
+    if not credentials or credentials.invalid:
         # if not, spawn a browser to get credentials
         credentials = run(flow, store)
     # finally create a service object:
