@@ -24,6 +24,7 @@ class GoogleDriveIdHashableDict(dict):
 
 
 class GoogleDrive(object):
+    icon = 'https://developers.google.com/drive/images/drive_icon.png'
 
     def __init__(self, service):
         self.service = service
@@ -33,7 +34,6 @@ class GoogleDrive(object):
         self._about = about = self.about()
         self.user['name'] = about['user']['displayName']
         self.user['image'] = about['user']['picture']['url']
-
 
     def about(self, **kwargs):
         return self.service.about().get(**kwargs).execute()
