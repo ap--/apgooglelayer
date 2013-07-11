@@ -1,12 +1,16 @@
 
-from gi.repository import Gtk, GdkPixbuf
 import array
 import dateutil.parser
 import dateutil.tz
+import math
 import requests
 import StringIO
+import time
+
 from PIL import Image
 import cairo
+from gi.repository import Gtk, GdkPixbuf, GLib, Pango, PangoCairo
+
 
 class GoogleDriveWidget(Gtk.VBox):
 
@@ -150,4 +154,80 @@ def cairo_ImageSurface_from_pil(im):
     return cairo.ImageSurface.create_for_data(narr,
                 cairo.FORMAT_ARGB32, im.size[0], im.size[1])
 
+
+class CairoLoadingWidget(Gtk.DrawingArea):
+    
+    def __init__(self, cairosurface, *args, **kwargs):
+        super(CairoLoadingWidget, self).__init__(*args, **kwargs)
+        
+        self.alpha = 0.0
+        self.image = cairosurface
+        self.text = ''
+        self.connect("draw", self._draw)
+        self.connect("show", self._on_show)
+
+    def set_text(self, text):
+        self.text = text
+    
+    def get_text(self, text):
+        return self.text
+
+    def _adjust_alpha(self):
+        if self.get_visible():
+            self.alpha = (math.cos(time.time()*2.5)**4)
+            self.queue_draw()
+            return True
+        else:
+            return False
+
+
+    def _on_show(self, *args):
+        self.alpha = 0.0
+        GLib.timeout_add(50, self._adjust_alpha)
+
+
+    def _draw(self, widget, context):
+        # constants
+        width = widget.get_allocated_width()
+        height = widget.get_allocated_height()
+        imgw = self.image.get_width()
+        imgh = self.image.get_height()
+        centerx = width/2.
+        centery = height/2.
+        # background
+        bg = cairo.LinearGradient(centerx, 0, centerx, height)
+        bg.add_color_stop_rgb(0, 1., 1., 1.)
+        bg.add_color_stop_rgb(1, 0.8, 0.8, 0.9)
+        context.set_source(bg)
+        context.rectangle(0,0,width,height)
+        context.fill()
+        # image
+        context.set_source_surface(self.image, centerx, centery)
+        context.paint()
+        # cover the image
+        context.set_source(bg)
+        context.rectangle(0,0,width,height)
+        context.paint_with_alpha(self.alpha) # XXX: FadeIn FadeOut
+        # Text 
+        lay = PangoCairo.create_layout(context)
+        lay.set_font_description(Pango.FontDescription("Monospace 8"))
+        lay.set_text(self.text, -1)
+        w,h = lay.get_pixel_size()
+        context.set_source_rgb(0,0,0)
+        context.move_to(centerx-w/2., centery+25)
+        PangoCairo.show_layout(context, lay)
+
+    @classmethod
+    def from_pil_image(cls, im):
+        surf = cairo_ImageSurface_from_pil(im)
+        surf.set_device_offset(surf.get_width()/2., surf.get_height()/2.)
+        return cls(surf)
+
+    @classmethod
+    def from_image_url(cls, url):
+        im = pil_from_url(url)
+        surf = cairo_ImageSurface_from_pil(im)
+        surf.set_device_offset(surf.get_width()/2., surf.get_height()/2.)
+        return cls(surf)
+        
 
