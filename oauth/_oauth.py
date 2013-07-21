@@ -38,4 +38,14 @@ def get_drive_service(secrets, keyring_storename, ver='v2'):
             keyring_storename=keyring_storename)
 
 
+def get_calendar_service(secrets, keyring_storename, ver='v3'):
+    """
+    return a service for google calendar
+    """
+    return get_service(secrets, 
+            scope='https://www.googleapis.com/auth/calendar',
+            service_name='calendar', service_version=ver,
+            keyring_storename=keyring_storename)
+
+
 

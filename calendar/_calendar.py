@@ -33,7 +33,7 @@ class GoogleCalendar(object):
     def getcalendarid(self):
         _id = self._findcalendarid()
         if _id is None:
-            raise Exception('Please add calendar with name %s' % self.name)
+            raise Exception('Please add calendar with name %s' % self.calendarName)
             _id = self._addcalendar()
         return _id
 
