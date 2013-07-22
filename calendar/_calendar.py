@@ -73,3 +73,11 @@ class GoogleCalendar(object):
         self.service.events().insert(calendarId=self.calendarId,
                                      body=event).execute()
 
+    def addrawevent(self, event):
+        self.service.events().insert(calendarId=self.calendarId,
+                                     body=event).execute()
+
+
+
+
+
