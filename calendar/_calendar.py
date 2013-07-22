@@ -77,7 +77,9 @@ class GoogleCalendar(object):
         self.service.events().insert(calendarId=self.calendarId,
                                      body=event).execute()
 
-
+    def deleteevent(self, eventid):
+        self.service.events().delete(calendarId=self.calendarId,
+                                    eventId=eventid).execute()
 
 
 
