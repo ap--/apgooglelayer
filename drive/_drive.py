@@ -39,7 +39,7 @@ class GoogleDrive(object):
     def about(self, http=None, **kwargs):
         if http is not None:
             return self.service.about().get(**kwargs).execute(http=http)
-        else
+        else:
             return self.service.about().get(**kwargs).execute()
 
 
@@ -60,14 +60,14 @@ class GoogleDrive(object):
         return unwrap_pages(f, kwargs)
 
 
-    def folder_structure(self,fields='items(id,mimeType,labels/trashed)'):
+    def folder_structure(self, http=None, fields='items(id,mimeType,labels/trashed)'):
         MAP = {}
-        for f in self.all_files(fields=fields):
+        for f in self.all_files(http=http, fields=fields):
             _id = f.pop('id')
             MAP[_id] = f
         
         def recurse(START, T):
-            TRACK = self.files_in_folder(folderId=START,fields='items(id)')
+            TRACK = self.files_in_folder(http=http, folderId=START,fields='items(id)')
             for f in TRACK:
                 _id = f['id']
                 if bool(MAP[_id]['labels']['trashed']):
@@ -82,13 +82,13 @@ class GoogleDrive(object):
         return Tree
 
     
-    def folder_structure_as_gtktreestore(self, fields='items(id,mimeType)'):
-        tree = self.folder_structure(fields=fields)
+    def folder_structure_as_gtktreestore(self, http=None, fields='items(id,mimeType)'):
+        tree = self.folder_structure(http=http, fields=fields)
         return tree.as_gtktreestore()
 
 
-    def files_as_id_dict(self, **kwargs):
-        FILES = self.all_files(**kwargs)
+    def files_as_id_dict(self, http=None, **kwargs):
+        FILES = self.all_files(http=http, **kwargs)
         result = {}
         for f in FILES:
             _id = f.pop('id')

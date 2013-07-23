@@ -1,4 +1,5 @@
 #!/usr/bin/python
+NOGTK = True
 
 from apiclient import errors
 
@@ -21,8 +22,9 @@ def unwrap_pages(func, kwargs):
             break
     return result
             
+if not NOGTK:
+    from gi.repository import Gtk
 
-from gi.repository import Gtk
 import collections
 
 class SimpleTree(collections.defaultdict):
@@ -38,24 +40,25 @@ class SimpleTree(collections.defaultdict):
                     yield x
         return recurse(self, 0)
 
-    def as_gtktreestore(self):
-        if len(self) == 0:
-            raise Exception('SimpleTree is empty.')
+    if not NOGTK:
+        def as_gtktreestore(self):
+            if len(self) == 0:
+                raise Exception('SimpleTree is empty.')
         
-        treestore = Gtk.TreeStore(object)
+            treestore = Gtk.TreeStore(object)
 
-        # first object will always have level 0!
-        OLDLEVEL = 0
-        PARENT = [None]
-        LASTID = None
-        for level, value in self.walkthrough():
-            if level - OLDLEVEL > 0:
-                PARENT.append(LASTID)
-            if level - OLDLEVEL < 0:
-                PARENT.pop()
-            LASTID = treestore.append(PARENT[-1],(dict(value),))
-            OLDLEVEL = level
+            # first object will always have level 0!
+            OLDLEVEL = 0
+            PARENT = [None]
+            LASTID = None
+            for level, value in self.walkthrough():
+                if level - OLDLEVEL > 0:
+                    PARENT.append(LASTID)
+                if level - OLDLEVEL < 0:
+                    PARENT.pop()
+                LASTID = treestore.append(PARENT[-1],(dict(value),))
+                OLDLEVEL = level
 
-        return treestore
-
+            return treestore
+        
 
