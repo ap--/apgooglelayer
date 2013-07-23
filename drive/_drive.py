@@ -30,22 +30,33 @@ class GoogleDrive(object):
         self.service = service
         
         # get user info
+    def _set_about(self, http=None):
         self.user = {}
-        self._about = about = self.about()
+        self._about = about = self.about(http=http)
         self.user['name'] = about['user']['displayName']
         self.user['image'] = about['user']['picture']['url']
 
-    def about(self, **kwargs):
-        return self.service.about().get(**kwargs).execute()
+    def about(self, http=None, **kwargs):
+        if http is not None:
+            return self.service.about().get(**kwargs).execute(http=http)
+        else
+            return self.service.about().get(**kwargs).execute()
 
 
-    def all_files(self, **kwargs):
-        f = lambda x: self.service.files().list(**x).execute()
+    def all_files(self, http=None, **kwargs):
+        if http is not None: 
+            f = lambda x: self.service.files().list(**x).execute(http=http)
+        else: 
+            f = lambda x: self.service.files().list(**x).execute()
         return unwrap_pages(f, kwargs)
 
 
-    def files_in_folder(self, **kwargs):
-        f = lambda x : self.service.children().list(**x).execute()
+    def files_in_folder(self, http=None, **kwargs):
+        if http is not None: 
+            f = lambda x : self.service.children().list(**x).execute(http=http)
+        else: 
+            f = lambda x : self.service.children().list(**x).execute()
+        
         return unwrap_pages(f, kwargs)
 
 
