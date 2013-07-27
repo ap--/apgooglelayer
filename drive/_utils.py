@@ -34,7 +34,9 @@ class SimpleTree(collections.defaultdict):
 
     def walkthrough(self):
         def recurse(start, level):
-            for k,v in start.iteritems():
+            for k in sorted(start.keys()):
+                v = start[k]
+            #for k,v in start.iteritems():
                 yield level,k
                 for x in recurse(v, level+1):
                     yield x
