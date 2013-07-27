@@ -1,5 +1,19 @@
 # -*- coding: utf-8 -*-
 
+def listcalendars(service, http=None):
+    page_token=None
+    ret = {}
+    while True:
+        clist = service.calendarList().list(pageToken=page_token, fields='items(id,summary)').execute(http=http)
+        if clist['items']:
+            for clist_entry in clist['items']:
+                ret[clist_entry['summary']] = clist_entry['id']
+        page_token = clist.get('nextPageToken')
+        if not page_token:
+            break
+    return ret
+
+
 class GoogleCalendar(object):
 
     def __init__(self, service, name=None):
@@ -28,6 +42,23 @@ class GoogleCalendar(object):
             page_token = clist.get('nextPageToken')
             if not page_token:
                 return None
+    
+    def listcalendars(self, http=None, key=None):
+        page_token=None
+        ret = {}
+        while True:
+            clist = self.service.calendarList().list(pageToken=page_token).execute(http=http)
+            if clist['items']:
+                for clist_entry in clist['items']:
+                    if key == 'id':
+                        ret[clist_entry['id']] = clist_entry['summary']
+                    else:
+                        ret[clist_entry['summary']] = clist_entry['id']
+            page_token = clist.get('nextPageToken')
+            if not page_token:
+                break
+        return ret
+        
 
 
     def _addcalendar(self, summary, description, timezone):
