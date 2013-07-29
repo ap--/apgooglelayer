@@ -1,8 +1,7 @@
 # import from this module
 from .extras import SimpleTree, HashableIdDict
-
-from apiclient import errors
-import functools
+from ..common import unwrap_pages
+from apiclient.discovery import build
 
 __all__ = ['GoogleDrive', 'GoogleDriveError']
 
@@ -11,36 +10,14 @@ class GoogleDriveError(Exception):
     pass
 
 
-def unwrap_pages(func):
-    def wrapper(self, **kwargs):
-        result = []
-        page_token = None
-        while True:
-            try:
-                param = {}
-                if page_token:
-                    param['pageToken'] = page_token
-                kwargs.update(param)
-                lkwargs = kwargs.copy()
-                part = func(self, **lkwargs)
-                result.extend(part.get('items', []))
-                page_token = part.get('nextPageToken')
-                if not page_token:
-                    break
-            except errors.HttpError as error:
-                raise GoogleDriveError('%s(): HttpError while '
-                            'unwrapping %s' % (func.func_name, error))
-        return result
-    wrapper.__doc__ = func.__doc__
-    wrapper.__name__ = func.__name__
-    return wrapper
-            
-
 class GoogleDrive(object):
     icon = 'https://developers.google.com/drive/images/drive_icon.png'
 
-    def __init__(self, service):
-        self.service = service
+    def __init__(self, service=None):
+        if service is None:
+            self.service = build('drive', 'v2')
+        else:
+            self.service = service
         
     def about(self, **kwargs):
         http = kwargs.pop('http', None)
