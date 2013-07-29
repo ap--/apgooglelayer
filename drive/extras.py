@@ -81,3 +81,15 @@ class SimpleTree(collections.defaultdict):
         FLAT = [k for l,k in self.walkthrough(key)]
         return FLAT
 
+    def get_all_where(self, selectfunc):
+        return (k for k in self.flat() if selectfunc(k))
+
+    def get_first_where(self, selectfunc):
+        return next(self.get_all_where(selectfunc))
+
+
+
+
+
+
+
