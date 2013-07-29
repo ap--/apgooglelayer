@@ -1,2 +1,2 @@
 
-from _calendar import GoogleCalendar
+from classes import GoogleCalendar
