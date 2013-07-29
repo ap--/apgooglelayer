@@ -1,66 +1,36 @@
 # -*- coding: utf-8 -*-
 
-def listcalendars(service, http=None):
-    page_token=None
-    ret = {}
-    while True:
-        clist = service.calendarList().list(pageToken=page_token, fields='items(id,summary)').execute(http=http)
-        if clist['items']:
-            for clist_entry in clist['items']:
-                ret[clist_entry['summary']] = clist_entry['id']
-        page_token = clist.get('nextPageToken')
-        if not page_token:
-            break
-    return ret
+from ..common import unwrap_pages
+from apiclient.discovery import build
 
 
 class GoogleCalendar(object):
 
-    def __init__(self, service, name=None):
-        self.service = service
-        self.calendarName = name
-        if name is not None:
-            self.calendarId = self.getcalendarid()
+    def __init__(self, service=None):
+        if service is None:
+            self.service = build('calendar', 'v3')
         else:
-            self.calendarId = None
+            self.service = service
 
-    def _findcalendarid(self, name=None):
-        if name is not None:
-            pass
-        elif self.calendarName is not None:
-            name = self.calendarName
-        else:
-            raise ValueError('provide name, or set calendarName')
-        
-        page_token=None
-        while True:
-            clist = self.service.calendarList().list(pageToken=page_token).execute()
-            if clist['items']:
-                for clist_entry in clist['items']:
-                    if clist_entry['summary'] == self.calendarName:
-                        return clist_entry['id']
-            page_token = clist.get('nextPageToken')
-            if not page_token:
-                return None
-    
-    def listcalendars(self, http=None, key=None):
-        page_token=None
-        ret = {}
-        while True:
-            clist = self.service.calendarList().list(pageToken=page_token).execute(http=http)
-            if clist['items']:
-                for clist_entry in clist['items']:
-                    if key == 'id':
-                        ret[clist_entry['id']] = clist_entry['summary']
-                    else:
-                        ret[clist_entry['summary']] = clist_entry['id']
-            page_token = clist.get('nextPageToken')
-            if not page_token:
-                break
-        return ret
-        
+    @unwrap_pages
+    def list_calendars(self, **kwargs):
+        http = kwargs.pop('http', None)
+        return self.service.calendarList().list(**kwargs).execute(http=http)
 
+    @unwrap_pages
+    def iter_events(self, **kwargs):
+        http = x.pop('http', None)
+        return self.service.events().list(**kwargs).execute(http=http)
 
+    def delete_event(self, calendarId, eventId, http=None):
+        self.service.events().delete(calendarId=calendarId,
+                                    eventId=eventId).execute(http=http)
+
+    def add_raw_event(self, calendarId, event):
+        self.service.events().insert(calendarId=calendarId,
+                                    body=event).execute(http=http)
+
+    """
     def _addcalendar(self, summary, description, timezone):
         cl = { 'summary'     : summary,
                'description' : description,
@@ -69,35 +39,6 @@ class GoogleCalendar(object):
                'defaultReminders' : []}
         ret = self.service.calendars().insert(body=cl).execute()
         return ret['id']
-
-
-    def getcalendarid(self):
-        _id = self._findcalendarid()
-        if _id is None:
-            raise Exception('Please add calendar with name %s' % self.calendarName)
-            _id = self._addcalendar()
-        return _id
-
-
-    def iterevents(self, **x):
-        http = x.pop('http', None)
-        if self.calendarId is None:
-            raise ValueError('please set calendarId')
-        page_token = None
-        while True:
-            events = self.service.events().list(calendarId=self.calendarId,
-                                    pageToken=page_token, **x).execute(http=http)
-            try:
-                events['items']
-            except KeyError:
-                return
-            if events['items']:
-                for event in events['items']:
-                    yield event
-            page_token = events.get('nextPageToken')
-            if not page_token:
-                return
-
 
     def addevent(self, date, summary, description, location, duration):
         if self.calendarId is None:
@@ -119,27 +60,7 @@ class GoogleCalendar(object):
         self.service.events().insert(calendarId=self.calendarId,
                                      body=event).execute()
 
-    def addrawevent(self, event):
-        if self.calendarId is None:
-            raise ValueError('please set calendarId')
-        self.service.events().insert(calendarId=self.calendarId,
-                                     body=event).execute()
-
-    def deleteevent(self, eventid):
-        if self.calendarId is None:
-            raise ValueError('please set calendarId')
-        self.service.events().delete(calendarId=self.calendarId,
-                                    eventId=eventid).execute()
-
     
-    def get_events_from_calendar(self, calendarId, http):
-        old = self.calendarId
-        self.calendarId = calendarId
-        EVENTS={}
-        for ev in self.iterevents(http=http,
-                fields="items(id,start,recurrence,location,summary,description)"):
-            _id = ev.pop('id')
-            EVENTS[_id] = ev
-        self.calendarId = old
-        return EVENTS
+    """
 
+            
