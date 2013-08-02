@@ -21,6 +21,21 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from oauth2client.client import AccessTokenRefreshError
+from gdata.client import Unauthorized
+
+class OAuth2BridgeError(AccessTokenRefreshError, Unauthorized):
+    pass
+
+def oauth2errorconversion(f):
+    def wrapper(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+        except Unauthorized as e:
+            raise OAuth2BridgeError(e.message)
+    return wrapper
+
+
 """A bridge module between oauth2client and gdata."""
 
 class OAuth2BearerToken(object):

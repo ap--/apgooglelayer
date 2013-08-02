@@ -4,6 +4,9 @@ from apiclient import errors
 
 __all__ = ['unwrap_pages']
 
+class UnwrapError(Exception):
+    pass
+
 
 def unwrap_pages(func):
     def wrapper(self, **kwargs):
@@ -22,7 +25,7 @@ def unwrap_pages(func):
                 if not page_token:
                     break
             except errors.HttpError as error:
-                raise GoogleDriveError('%s(): HttpError while '
+                raise UnwrapError('%s(): HttpError while '
                             'unwrapping %s' % (func.func_name, error))
         return result
     wrapper.__doc__ = func.__doc__
