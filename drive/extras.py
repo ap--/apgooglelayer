@@ -49,7 +49,7 @@ class SimpleTree(collections.defaultdict):
     def __init__(self):
         super(SimpleTree, self).__init__(SimpleTree)
 
-    def walkthrough(self, key=None):
+    def walkthrough(self, key=None, filter=None):
         """walkthrough(key=None)
 
         walk through all files in tree.
@@ -66,12 +66,16 @@ class SimpleTree(collections.defaultdict):
         def recurse(treenode, level, key=None):
             for hashable_item in sorted(treenode.keys(), key=key):
                 childnode = treenode[hashable_item]
-                yield level, hashable_item
+                if hasattr(filter, '__call__'):
+                    if filter(hashable_item):
+                        yield level, hashable_item
+                else:
+                    yield level, hashable_item
                 for l,h in recurse(childnode, level+1, key=key):
                     yield l,h
         return recurse(self, 0, key=key)
 
-    def flat(self, key=None):
+    def flat(self, key=None, filter=None):
         """flat(key=None)
 
         see walkthrough.
@@ -80,6 +84,18 @@ class SimpleTree(collections.defaultdict):
         """
         FLAT = [k for l,k in self.walkthrough(key)]
         return FLAT
+
+    def flatten_names(self, key=None, filter=None):
+        prefix = ['']
+        for l,v in self.walkthrough(key=key):
+            prefix = prefix[:l+1] + [v['title']]
+            if hasattr(filter, '__call__'):
+                if filter(v):
+                    yield "/".join(prefix)
+            else:
+                yield "/".join(prefix)
+
+
 
     def get_all_where(self, selectfunc):
         return (k for k in self.flat() if selectfunc(k))
