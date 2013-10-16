@@ -91,9 +91,9 @@ class SimpleTree(collections.defaultdict):
             prefix = prefix[:l+1] + [v['title']]
             if hasattr(filter, '__call__'):
                 if filter(v):
-                    yield "/".join(prefix)
+                    yield "/".join(prefix), v
             else:
-                yield "/".join(prefix)
+                yield "/".join(prefix), v
 
 
 
